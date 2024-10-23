@@ -1,7 +1,16 @@
+// Core modules
 const realine = require("readline");
 const fs = require("fs");
 const http = require("http");
 const url = require("url");
+const events=require('events')
+
+//user define modules
+
+const replaceHtml=require('./modules/replaceHtml')
+const user =require('./modules/user')
+
+//3rd party modules
 
 /*LECTURE 4: CODE EXAMPLE************
 READING INPUT & WRITING OUTPUT
@@ -56,70 +65,93 @@ let productDetailHtml = fs.readFileSync(
 );
 let product = JSON.parse(fs.readFileSync("./Data/product.json", "utf-8"));
 
-function replaceHtml(template, product) {
-  let output = template.replace("{{%IMAGE%}}", product.productImage);
-  output = output.replace("{{%NAME%}}", product.name);
-  output = output.replace("{{%MODELNAME%}}", product.modeName);
-  output = output.replace("{{%MODELNO%}}", product.modelNumber);
-  output = output.replace("{{%SIZE%}}", product.size);
-  output = output.replace("{{%CAMERA%}}", product.camera);
-  output = output.replace("{{%PRICE%}}", product.price);
-  output = output.replace("{{%COLOR%}}", product.color);
-  output = output.replace("{{%ID%}}", product.id);
-  output = output.replace("{{%ROM%}}", product.ROM);
-  output = output.replace("{{%DESC%}}", product.Description);
+// function replaceHtml(template, product) {
+//   let output = template.replace("{{%IMAGE%}}", product.productImage);
+//   output = output.replace("{{%NAME%}}", product.name);
+//   output = output.replace("{{%MODELNAME%}}", product.modeName);
+//   output = output.replace("{{%MODELNO%}}", product.modelNumber);
+//   output = output.replace("{{%SIZE%}}", product.size);
+//   output = output.replace("{{%CAMERA%}}", product.camera);
+//   output = output.replace("{{%PRICE%}}", product.price);
+//   output = output.replace("{{%COLOR%}}", product.color);
+//   output = output.replace("{{%ID%}}", product.id);
+//   output = output.replace("{{%ROM%}}", product.ROM);
+//   output = output.replace("{{%DESC%}}", product.Description);
 
-  return output;
-}
+//   return output;
+// }
 
-const server = http.createServer((request, response) => {
+// const server = http.createServer((request, response) => {
+ 
+// });
+// Event emitter class
+const server =http.createServer();
+
+
+server.on('request',(request,response)=>{
+
   let { query, pathname: path } = url.parse(request.url, true);
-  //   let path = request.url;
-  if (path == "/" || path.toLocaleLowerCase() == "/home") {
-    response.writeHead(200, {
-      "Content-type": "text/html",
-      myHeader: "hello, word",
+//   let path = request.url;
+if (path == "/" || path.toLocaleLowerCase() == "/home") {
+  response.writeHead(200, {
+    "Content-type": "text/html",
+    myHeader: "hello, word",
+  });
+  response.end(html.replace("{{%CONTENT%}}", "You are in Home Page"));
+} else if (path.toLocaleLowerCase() == "/about") {
+  response.writeHead(200, {
+    "Content-type": "text/html",
+    myHeader: "hello, word",
+  });
+  response.end(html.replace("{{%CONTENT%}}", "You are in About Page"));
+} else if (path.toLocaleLowerCase() == "/contact") {
+  response.writeHead(200, {
+    "Content-type": "text/html",
+    myHeader: "hello, word",
+  });
+  response.end(html.replace("{{%CONTENT%}}", "You are in Contact Page"));
+} else if (path.toLocaleLowerCase() == "/products") {
+  response.writeHead(200, {
+    "Content-type": "text/html",
+  });
+  if (!query.id) {
+    let productHtmlArray = product.map((prod) => {
+      return replaceHtml(productListHtml, prod);
     });
-    response.end(html.replace("{{%CONTENT%}}", "You are in Home Page"));
-  } else if (path.toLocaleLowerCase() == "/about") {
-    response.writeHead(200, {
-      "Content-type": "text/html",
-      myHeader: "hello, word",
-    });
-    response.end(html.replace("{{%CONTENT%}}", "You are in About Page"));
-  } else if (path.toLocaleLowerCase() == "/contact") {
-    response.writeHead(200, {
-      "Content-type": "text/html",
-      myHeader: "hello, word",
-    });
-    response.end(html.replace("{{%CONTENT%}}", "You are in Contact Page"));
-  } else if (path.toLocaleLowerCase() == "/products") {
-    response.writeHead(200, {
-      "Content-type": "text/html",
-    });
-    if (!query.id) {
-      let productHtmlArray = product.map((prod) => {
-        return replaceHtml(productListHtml, prod);
-      });
-      let productresponse = html.replace(
-        "{{%CONTENT%}}",
-        productHtmlArray.join(",")
-      );
-      response.end(productresponse);
-    } else {
-      let prodDetailHtml = replaceHtml(productDetailHtml, product[query.id]);
-
-      response.end(html.replace("{{%CONTENT%}}", prodDetailHtml));
-    }
+    let productresponse = html.replace(
+      "{{%CONTENT%}}",
+      productHtmlArray.join(",")
+    );
+    response.end(productresponse);
   } else {
-    response.writeHead(404, {
-      "Content-type": "text/html",
-      myHeader: "hello, word",
-    });
-    response.end(html.replace("{{%CONTENT%}}", "Error 404: Page not found"));
+    let prodDetailHtml = replaceHtml(productDetailHtml, product[query.id]);
+
+    response.end(html.replace("{{%CONTENT%}}", prodDetailHtml));
   }
+} else {
+  response.writeHead(404, {
+    "Content-type": "text/html",
+    myHeader: "hello, word",
+  });
+  response.end(html.replace("{{%CONTENT%}}", "Error 404: Page not found"));
+}
 });
 
 server.listen(8000, "127.0.0.1", () => {
   console.log("server is started");
 });
+
+
+/*LECTURE 20: CODE EXAMPLE**************
+UNDERSTANDING EVENT DRIVEN ARCHITECTURE
+***************************************/
+
+
+let myEmitter=new user();
+
+myEmitter.on('userCreated',(id,name)=>{
+  console.log(`new user ${name} and id ${id} is created`)
+});
+
+myEmitter.emit('userCreated',101,'aqib');
+
