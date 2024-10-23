@@ -3,12 +3,12 @@ const realine = require("readline");
 const fs = require("fs");
 const http = require("http");
 const url = require("url");
-const events=require('events')
+const events = require("events");
 
 //user define modules
 
-const replaceHtml=require('./modules/replaceHtml')
-const user =require('./modules/user')
+// const replaceHtml=require('./modules/replaceHtml')
+// const user =require('./modules/user')
 
 //3rd party modules
 
@@ -57,13 +57,13 @@ fs.readFile('./Files/start.txt', 'utf-8', (error1, data1) => {
 
 
 console.log('Reading file....');*/
-const html = fs.readFileSync("./Template/index.html", "utf-8");
-let productListHtml = fs.readFileSync("./Template/product-list.html", "utf-8");
-let productDetailHtml = fs.readFileSync(
-  "./Template/product-details.html",
-  "utf-8"
-);
-let product = JSON.parse(fs.readFileSync("./Data/product.json", "utf-8"));
+// const html = fs.readFileSync("./Template/index.html", "utf-8");
+// let productListHtml = fs.readFileSync("./Template/product-list.html", "utf-8");
+// let productDetailHtml = fs.readFileSync(
+//   "./Template/product-details.html",
+//   "utf-8"
+// );
+// let product = JSON.parse(fs.readFileSync("./Data/product.json", "utf-8"));
 
 // function replaceHtml(template, product) {
 //   let output = template.replace("{{%IMAGE%}}", product.productImage);
@@ -82,76 +82,116 @@ let product = JSON.parse(fs.readFileSync("./Data/product.json", "utf-8"));
 // }
 
 // const server = http.createServer((request, response) => {
- 
+
 // });
 // Event emitter class
-const server =http.createServer();
+const server = http.createServer();
 
+// server.on('request',(request,response)=>{
 
-server.on('request',(request,response)=>{
+//   let { query, pathname: path } = url.parse(request.url, true);
+// //   let path = request.url;
+// if (path == "/" || path.toLocaleLowerCase() == "/home") {
+//   response.writeHead(200, {
+//     "Content-type": "text/html",
+//     myHeader: "hello, word",
+//   });
+//   response.end(html.replace("{{%CONTENT%}}", "You are in Home Page"));
+// } else if (path.toLocaleLowerCase() == "/about") {
+//   response.writeHead(200, {
+//     "Content-type": "text/html",
+//     myHeader: "hello, word",
+//   });
+//   response.end(html.replace("{{%CONTENT%}}", "You are in About Page"));
+// } else if (path.toLocaleLowerCase() == "/contact") {
+//   response.writeHead(200, {
+//     "Content-type": "text/html",
+//     myHeader: "hello, word",
+//   });
+//   response.end(html.replace("{{%CONTENT%}}", "You are in Contact Page"));
+// } else if (path.toLocaleLowerCase() == "/products") {
+//   response.writeHead(200, {
+//     "Content-type": "text/html",
+//   });
+//   if (!query.id) {
+//     let productHtmlArray = product.map((prod) => {
+//       return replaceHtml(productListHtml, prod);
+//     });
+//     let productresponse = html.replace(
+//       "{{%CONTENT%}}",
+//       productHtmlArray.join(",")
+//     );
+//     response.end(productresponse);
+//   } else {
+//     let prodDetailHtml = replaceHtml(productDetailHtml, product[query.id]);
 
-  let { query, pathname: path } = url.parse(request.url, true);
-//   let path = request.url;
-if (path == "/" || path.toLocaleLowerCase() == "/home") {
-  response.writeHead(200, {
-    "Content-type": "text/html",
-    myHeader: "hello, word",
-  });
-  response.end(html.replace("{{%CONTENT%}}", "You are in Home Page"));
-} else if (path.toLocaleLowerCase() == "/about") {
-  response.writeHead(200, {
-    "Content-type": "text/html",
-    myHeader: "hello, word",
-  });
-  response.end(html.replace("{{%CONTENT%}}", "You are in About Page"));
-} else if (path.toLocaleLowerCase() == "/contact") {
-  response.writeHead(200, {
-    "Content-type": "text/html",
-    myHeader: "hello, word",
-  });
-  response.end(html.replace("{{%CONTENT%}}", "You are in Contact Page"));
-} else if (path.toLocaleLowerCase() == "/products") {
-  response.writeHead(200, {
-    "Content-type": "text/html",
-  });
-  if (!query.id) {
-    let productHtmlArray = product.map((prod) => {
-      return replaceHtml(productListHtml, prod);
-    });
-    let productresponse = html.replace(
-      "{{%CONTENT%}}",
-      productHtmlArray.join(",")
-    );
-    response.end(productresponse);
-  } else {
-    let prodDetailHtml = replaceHtml(productDetailHtml, product[query.id]);
-
-    response.end(html.replace("{{%CONTENT%}}", prodDetailHtml));
-  }
-} else {
-  response.writeHead(404, {
-    "Content-type": "text/html",
-    myHeader: "hello, word",
-  });
-  response.end(html.replace("{{%CONTENT%}}", "Error 404: Page not found"));
-}
-});
+//     response.end(html.replace("{{%CONTENT%}}", prodDetailHtml));
+//   }
+// } else {
+//   response.writeHead(404, {
+//     "Content-type": "text/html",
+//     myHeader: "hello, word",
+//   });
+//   response.end(html.replace("{{%CONTENT%}}", "Error 404: Page not found"));
+// }
+// });
 
 server.listen(8000, "127.0.0.1", () => {
   console.log("server is started");
 });
 
-
 /*LECTURE 20: CODE EXAMPLE**************
 UNDERSTANDING EVENT DRIVEN ARCHITECTURE
 ***************************************/
 
+// let myEmitter=new user();
 
-let myEmitter=new user();
+// myEmitter.on('userCreated',(id,name)=>{
+//   console.log(`new user ${name} and id ${id} is created`)
+// });
 
-myEmitter.on('userCreated',(id,name)=>{
-  console.log(`new user ${name} and id ${id} is created`)
-});
+// myEmitter.emit('userCreated',101,'aqib');
 
-myEmitter.emit('userCreated',101,'aqib');
+/*LECTURE 23: CODE EXAMPLE**************
+UNDERSTANDING STREAMS IN PRACTICE
+***************************************/
+//SOLUTION 1: WITHOUT READABLE OR WRITABLE STREAM
 
+// server.on('request',(req,res)=>{
+//   fs.readFile('./Files/large-file.txt', (err, data) =>{
+//             if(err){
+//                 res.end('Something went wrong!');
+//                 return;
+//             }
+//             res.end(data);
+//         })
+
+// })
+//SOLUTION 2: USING READABLE & WRITABLE STREAM
+// server.on("request", (req, res) => {
+//   let rs = fs.createReadStream("./Files/large-file.txt");
+
+//   rs.on("data", (chunks) => {
+//     res.write(chunks);
+//   });
+
+//   rs.on("end", () => {
+//     res.end();
+//   });
+
+//   rs.on("error", (error) => {
+//     res.end(error.message);
+//   });
+
+// });
+
+/*LECTURE 24: CODE EXAMPLE**************
+UNDERSTANDING PIPE() METHOD
+***************************************/
+//SOLUTION 3: USING PIPE METHOD
+
+// server.on("request", (req, res) => {
+//   let rs = fs.createReadStream("./Files/large-file.txt");
+//   rs.pipe(res);
+//   //redableSource.pipe(writableDest)
+// });
