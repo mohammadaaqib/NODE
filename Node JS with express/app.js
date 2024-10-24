@@ -1,10 +1,9 @@
 //Import express
 const express = require("express");
-const morgan = require('morgan');
-const movieRouter=require("./Routes/movieRoutes")
+const morgan = require("morgan");
+const movieRouter = require("./Routes/movieRoutes");
 
 let app = express();
-
 
 const logger = function (req, res, next) {
   console.log("The request is made");
@@ -12,8 +11,10 @@ const logger = function (req, res, next) {
 };
 
 app.use(express.json());
-app.use(morgan('dev'));
-app.use(express.static('./public'))
+if (process.env.NODE_ENV == "development") {
+  app.use(morgan("dev"));
+}
+app.use(express.static("./public"));
 app.use(logger);
 
 //custom middleware
@@ -21,7 +22,6 @@ app.use((req, res, next) => {
   req.requestedAt = new Date().toISOString();
   next();
 });
-
 
 // //GET api
 // app.get("/api/v1/movies", getAllMovies);
@@ -34,9 +34,6 @@ app.use((req, res, next) => {
 // // Detele api
 // app.delete("/api/v1/movies/:id", deleteMovie);
 
+app.use("/api/v1/movies", movieRouter);
 
-app.use('/api/v1/movies',movieRouter)
-
-
-
-module.exports= app;
+module.exports = app;

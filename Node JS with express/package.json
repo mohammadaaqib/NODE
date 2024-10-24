@@ -9,6 +9,7 @@
   "author": "Muhammad Aqib",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "morgan": "^1.10.0"
   }
