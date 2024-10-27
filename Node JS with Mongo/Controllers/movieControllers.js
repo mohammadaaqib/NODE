@@ -1,11 +1,40 @@
 const Movie = require("./../Models/movieModel");
 
-
-
 //Route handler Functions
-exports.getAllMovies = (req, res) => {};
+exports.getAllMovies = async (req, res) => {
+  try {
+    const movies = await Movie.find();
+    res.status(200).json({
+      status: "Success",
+      lenght: movies.length,
+      data: {
+        movies,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: "Fail",
+      message: err.message,
+    });
+  }
+};
 
-exports.getMovie = (req, res) => {};
+exports.getMovie = async (req, res) => {
+  try {
+    const movie = await Movie.find({ _id: req.params.id });
+    res.status(200).json({
+      status: "Success",
+      data: {
+        movie,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: "Fail",
+      message: err.message,
+    });
+  }
+};
 
 exports.createMovie = async (req, res) => {
   // const testMovie=new Movie({
@@ -16,21 +45,56 @@ exports.createMovie = async (req, res) => {
   try {
     const movie = await Movie.create(req.body);
     res.status(201).json({
-      status:"Success",
-      data:{
-        movie
-      }
-    }) 
-  
+      status: "Success",
+      data: {
+        movie,
+      },
+    });
   } catch (err) {
     res.status(400).json({
-      status:"Fail",
-     message:err.message
-    })
-
+      status: "Fail",
+      message: err.message,
+    });
   }
 };
 
-exports.updateMovie = (req, res) => {};
+exports.updateMovie = async (req, res) => {
+  try {
+  const upadtedmovie= await  Movie.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
-exports.deleteMovie = (req, res) => {};
+    res.status(201).json({
+      status: "Success",
+      data: {
+        upadtedmovie,
+      },
+    });
+  } catch (err) {
+
+    res.status(400).json({
+      status: "Fail",
+      message: err.message,
+    });
+  }
+};
+
+exports.deleteMovie = async (req, res) => {
+  try {
+    const upadtedmovie= await  Movie.findByIdAndDelete(req.params.id);
+  
+      res.status(204).json({
+        status: "Success",
+        data: null
+      });
+    } catch (err) {
+  
+      res.status(400).json({
+        status: "Fail",
+        message: err.message,
+     
+
+})
+}
+};
