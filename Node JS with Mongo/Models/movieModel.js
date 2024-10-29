@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator=require("validator");
 
 
 const movieschema = new mongoose.Schema({
@@ -6,6 +7,7 @@ const movieschema = new mongoose.Schema({
       type: String,
       require: [true, "Name is required"],
       unique: true,
+      validate:[validator.isAplha,"Name should only contain alphabets"]
     },
     description: {
       type: String,
