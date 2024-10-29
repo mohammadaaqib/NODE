@@ -33,7 +33,15 @@ app.use((req, res, next) => {
 // app.patch("/api/v1/movies/:id", updateMovie);
 // // Detele api
 // app.delete("/api/v1/movies/:id", deleteMovie);
-
+// Middle ware to use route
 app.use("/api/v1/movies", movieRouter);
+//For error urls  middleware
+app.all("*", (req, res, next) => {
+  res.status(404).json({
+    status: "Fail",
+    message: `Can't find${req.originalUrl} on the server `,
+  });
+  next();
+});
 
 module.exports = app;
