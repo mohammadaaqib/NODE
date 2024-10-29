@@ -5,6 +5,7 @@ const router = express.Router();
 
 //router.param("id", moviesController.checkId);
 router.route("/movie-stats").get(moviesController.movieStats)
+router.route("/movies-by-genre/:genre").get(moviesController.movieGenre)
 router
   .route("/")
   .get(moviesController.getAllMovies)
