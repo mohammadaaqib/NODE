@@ -4,7 +4,7 @@ const moviesController = require("./../Controllers/movieControllers");
 const router = express.Router();
 
 //router.param("id", moviesController.checkId);
-
+router.route("/movie-stats").get(moviesController.movieStats)
 router
   .route("/")
   .get(moviesController.getAllMovies)

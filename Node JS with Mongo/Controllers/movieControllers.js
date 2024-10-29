@@ -1,13 +1,15 @@
 const Movie = require("./../Models/movieModel");
-const ApiFeatures=require("./../Utils/ApiFeatures")
+const ApiFeatures = require("./../Utils/ApiFeatures");
 
 //Route handler Functions
 exports.getAllMovies = async (req, res) => {
-
   try {
-  const feature= new ApiFeatures(Movie.find(),req.query).sort().limiting().paggination();
-  let movies=await feature.query;
-  //  let query = Movie.find();
+    const feature = new ApiFeatures(Movie.find(), req.query)
+      .sort()
+      .limiting()
+      .paggination();
+    let movies = await feature.query;
+    //  let query = Movie.find();
 
     //sorting logic
     // if (req.query.sort) {
@@ -32,7 +34,7 @@ exports.getAllMovies = async (req, res) => {
     // let skip = (page - 1) * limit;
     // query = query.skip(skip).limit(limit);
 
-   // const movies = await query;
+    // const movies = await query;
     res.status(200).json({
       status: "Success",
       lenght: movies.length,
@@ -119,6 +121,43 @@ exports.deleteMovie = async (req, res) => {
     res.status(204).json({
       status: "Success",
       data: null,
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: "Fail",
+      message: err.message,
+    });
+  }
+};
+
+exports.movieStats = async (req, res) => {
+  try {
+    console.log("in side controller");
+    const stats = await Movie.aggregate([
+      {
+        $match: { ratings: { $gte: 4.5 } },
+      },
+      {
+        $group: {
+          _id: '$releaseYear',
+          avgRating: { $avg: "$ratings" },
+          avgPrice: { $avg: "$price" },
+          minPrice: { $min: "$price" },
+          maxPrice: { $max: "$price" },
+          totalPrice: { $sum: "$price" },
+          movieCount: { $sum: 1 },
+        },
+      },
+      {
+        $sort:{
+          minPrice:1
+        }
+      }
+    ]);
+    res.status(200).json({
+      status: "Success",
+      count: stats.length,
+      data: { stats },
     });
   } catch (err) {
     res.status(400).json({
