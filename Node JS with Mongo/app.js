@@ -2,6 +2,8 @@
 const express = require("express");
 const morgan = require("morgan");
 const movieRouter = require("./Routes/movieRoutes");
+const customError = require("./Utils/CustomError");
+const globalErrorHandler = require("./Controllers/errorController");
 
 let app = express();
 
@@ -37,11 +39,20 @@ app.use((req, res, next) => {
 app.use("/api/v1/movies", movieRouter);
 //For error urls  middleware
 app.all("*", (req, res, next) => {
-  res.status(404).json({
-    status: "Fail",
-    message: `Can't find${req.originalUrl} on the server `,
-  });
-  next();
+  // res.status(404).json({
+  //   status: "Fail",
+  //   message: `Can't find${req.originalUrl} on the server `,
+  // // });
+  // const err=new Error(`Can't find${req.originalUrl} on the server`);
+  // err.status="Fail";
+  // err.statusCode=404;
+  const err = new customError(
+    `Can't find${req.originalUrl} on the server`,
+    404
+  );
+  next(err);
 });
+
+app.use(globalErrorHandler);
 
 module.exports = app;
