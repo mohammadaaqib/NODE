@@ -1,3 +1,4 @@
+const CustomError = require("../Utils/CustomError");
 const Movie = require("./../Models/movieModel");
 const ApiFeatures = require("./../Utils/ApiFeatures");
 
@@ -50,7 +51,7 @@ exports.getAllMovies = async (req, res) => {
   }
 };
 
-exports.getMovie = async (req, res) => {
+exports.getMovie = async (req, res,next) => {
   try {
     const movie = await Movie.find({ _id: req.params.id });
     res.status(200).json({
@@ -60,10 +61,12 @@ exports.getMovie = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(404).json({
-      status: "Fail",
-      message: err.message,
-    });
+    const error=new CustomError(err.message,404)
+    next(error);
+    // res.status(404).json({
+    //   status: "Fail",
+    //   message: err.message,
+    // });
   }
 };
 

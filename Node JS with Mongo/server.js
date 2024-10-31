@@ -16,12 +16,25 @@ mongoose
     console.log(err);
   });
 
-
-
-
-
 const port = process.env.port || 3000;
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log("server is started");
+});
+
+process.on("unhandledRejection", (err) => {
+  console.log(err.name, err.message);
+  console.log("Unhandled rejection occured! shutting down....");
+  server.close(() => {
+    process.exit(1);
+  });
+});
+
+
+process.on("uncaughtException", (err) => {
+  console.log(err.name, err.message);
+  console.log("uncaught  Exception occured! shutting down....");
+  server.close(() => {
+    process.exit(1);
+  });
 });
