@@ -61,7 +61,7 @@ exports.login = async (req, res, next) => {
 
 exports.protect = async (req, res, next) => {
   try {
-    //fetch token from header
+    //1 fetch token from header
     const tokenfromheader = req.headers.authorization;
     let token;
     if (tokenfromheader && tokenfromheader.startsWith("bearer")) {
@@ -70,21 +70,35 @@ exports.protect = async (req, res, next) => {
     if (!token) {
       next(new CustomError("You are not logged in", 401));
     }
-
+    //2 verify token
     const decordedToken = await util.promisify(jwt.verify)(
       token,
       process.env.SECRET_STR
     );
     console.log(decordedToken);
 
-    //verify token
+    //3 check if user exists
+    const user = await userModel.findById(decordedToken.id);
 
-    // check if user exists
+    if (!user) {
+      next(
+        new CustomError("the user with the given token does not exist", 401)
+      );
+    }
+
+
+
+    //4 if user change password after token issued
+   if( user.isPasswordChanged(decordedToken.iat)){
+    return next( new CustomError("the password is changed recently", 401))
+   }
+
+    //5 allow user to access route
 
     next();
   } catch (err) {
-    console.log("here")
-   const error= new CustomError(err.message,400);
+    console.log("here");
+    const error = new CustomError(err.message, 400);
     return next(error);
   }
 };
