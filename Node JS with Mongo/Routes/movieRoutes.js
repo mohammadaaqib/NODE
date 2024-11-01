@@ -1,5 +1,6 @@
 const express = require("express");
 const moviesController = require("./../Controllers/movieControllers");
+const authController=require('./../Controllers/authControlles');
 
 const router = express.Router();
 
@@ -8,7 +9,7 @@ router.route("/movie-stats").get(moviesController.movieStats)
 router.route("/movies-by-genre/:genre").get(moviesController.movieGenre)
 router
   .route("/")
-  .get(moviesController.getAllMovies)
+  .get(authController.protect,moviesController.getAllMovies)
   .post(moviesController.createMovie);
 
 router

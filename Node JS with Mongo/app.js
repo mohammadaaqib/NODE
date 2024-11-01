@@ -9,7 +9,6 @@ const globalErrorHandler = require("./Controllers/errorController");
 let app = express();
 
 const logger = function (req, res, next) {
-  console.log("The request is made");
   next();
 };
 
