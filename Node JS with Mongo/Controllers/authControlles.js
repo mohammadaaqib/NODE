@@ -64,7 +64,7 @@ exports.protect = async (req, res, next) => {
     //1 fetch token from header
     const tokenfromheader = req.headers.authorization;
     let token;
-    if (tokenfromheader && tokenfromheader.startsWith("bearer")) {
+    if (tokenfromheader && tokenfromheader.startsWith("Bearer")) {
       token = tokenfromheader.split(" ")[1];
     }
     if (!token) {
