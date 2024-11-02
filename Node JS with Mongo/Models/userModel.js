@@ -14,6 +14,11 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     validate: [validator.isEmail, "Please enter a valid email"],
   },
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+  },
   photo: String,
   password: {
     type: String,
@@ -30,32 +35,30 @@ const userSchema = new mongoose.Schema({
       message: "Password & Confirm Password does not match",
     },
   },
-  passwordChnagedAt:Date
+  passwordChnagedAt: Date,
 });
 
 userSchema.pre("save", async function (next) {
-    console.log("in hook")
+  console.log("in hook");
   if (!this.isModified) return next();
   this.password = await bcrypt.hash(this.password, 12);
   this.confirmpassword = undefined;
   next();
 });
-userSchema.methods.comparePassword= async (password,DBPassword)=>{
+userSchema.methods.comparePassword = async (password, DBPassword) => {
+  return await bcrypt.compare(password, DBPassword);
+};
 
- return await   bcrypt.compare(password,DBPassword)
-
-}
-
-userSchema.methods.isPasswordChanged=  function(jwtTime){
-   if(this.passwordChnagedAt){
-    const passChnagedTimestamp=parseInt(this.passwordChnagedAt.getTime()/1000,10);
-    return jwtTime<passChnagedTimestamp;
-
-   }
-   return false;
-   
-}
-
+userSchema.methods.isPasswordChanged = function (jwtTime) {
+  if (this.passwordChnagedAt) {
+    const passChnagedTimestamp = parseInt(
+      this.passwordChnagedAt.getTime() / 1000,
+      10
+    );
+    return jwtTime < passChnagedTimestamp;
+  }
+  return false;
+};
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;

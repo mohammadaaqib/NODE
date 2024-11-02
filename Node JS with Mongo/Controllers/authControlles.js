@@ -94,7 +94,7 @@ exports.protect = async (req, res, next) => {
    }
 
     //5 allow user to access route
-
+req.user=user;
     next();
   } catch (err) {
     console.log("here");
@@ -102,3 +102,17 @@ exports.protect = async (req, res, next) => {
     return next(error);
   }
 };
+
+exports.restrict=(role)=>{
+    return (req,res,next)=>{
+        console.log(req.user.role)
+        console.log(role)
+
+        if(role!==req.user.role){
+            next( new CustomError("You do not have permission to performe this action", 403))
+        }
+        next();
+
+    }
+
+}
