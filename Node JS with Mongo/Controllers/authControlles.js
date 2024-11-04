@@ -1,4 +1,4 @@
-const { error } = require("console");
+
 const CustomError = require("../Utils/CustomError");
 const userModel = require("./../Models/userModel");
 const jwt = require("jsonwebtoken");
@@ -13,7 +13,9 @@ const createToken = (id) => {
 };
 
 createSendResponse=(user,statusCode,res)=>{
-    console.log("test")
+    jwt.sign({ id }, process.env.SECRET_STR, {
+        expiresIn: process.env.LOGIN_EXPIRE,
+      });
     const token = createToken(user._id);
     res.status(statusCode).json({
       status: "success",
@@ -100,7 +102,6 @@ exports.protect = async (req, res, next) => {
     req.user = user;
     next();
   } catch (err) {
-    console.log("here");
     const error = new CustomError(err.message, 400);
     return next(error);
   }
@@ -147,7 +148,6 @@ exports.forgetPassword = async (req, res, next) => {
       message: "Password reset link send to the user email",
     });
   } catch (err) {
-    console.log(err)
     user.passwordResetToken = undefined;
     user.passwordResetTokenExpires = undefined;
     user.save({ validateBeforeSave: false });
@@ -163,7 +163,6 @@ exports.forgetPassword = async (req, res, next) => {
 exports.resetPassword = async (req, res, next) => {
     // check token is correct and not expire
     const token =crypto.createHash('sha256').update(req.params.token).digest('hex')
-console.log(token)
 const user = await userModel.findOne({passwordResetToken:token,passwordResetTokenExpires:{$gt:Date.now()}})
 
 if(!user){

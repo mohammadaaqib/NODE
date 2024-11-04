@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const { type } = require("os");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -35,6 +36,11 @@ const userSchema = new mongoose.Schema({
       },
       message: "Password & Confirm Password does not match",
     },
+  },
+  active:{
+    type:Boolean,
+    default:true,
+    select:false
   },
   passwordChnagedAt: Date,
   passwordResetToken: String,
