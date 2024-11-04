@@ -1,6 +1,7 @@
 //Import express
 const express = require("express");
 const morgan = require("morgan");
+const rateLimit=require("express-rate-limit")
 const movieRouter = require("./Routes/movieRoutes");
 const authRouter = require("./Routes/authRouter")
 const userRouter = require("./Routes/userRouter")
@@ -8,7 +9,12 @@ const customError = require("./Utils/CustomError");
 const globalErrorHandler = require("./Controllers/errorController");
 
 let app = express();
-
+let Limiter=rateLimit({
+  max:1000,
+  windowMs:60*60*1000,
+  message:"we have received too many request form this IP"
+})
+app.use('/api',Limiter);
 const logger = function (req, res, next) {
   next();
 };
