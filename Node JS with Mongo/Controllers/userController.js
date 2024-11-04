@@ -13,7 +13,15 @@ const createToken = (id) => {
 };
 
 createSendResponse = (user, statusCode, res) => {
+    console.log("sign up 3++")
   const token = createToken(user._id);
+   //setting cookies
+   let options={
+    maxAge:process.env.LOGIN_EXPIRE,
+    httpOnly:true
+}
+res.cookie('jwt',token,options)
+console.log("sign up 5")
   res.status(statusCode).json({
     status: "success",
     token,

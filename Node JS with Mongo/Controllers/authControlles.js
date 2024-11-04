@@ -13,10 +13,16 @@ const createToken = (id) => {
 };
 
 createSendResponse=(user,statusCode,res)=>{
-    jwt.sign({ id }, process.env.SECRET_STR, {
-        expiresIn: process.env.LOGIN_EXPIRE,
-      });
+    console.log("sign up 3")
     const token = createToken(user._id);
+    console.log("sign up 4")
+    //setting cookies
+    let options={
+        maxAge:process.env.LOGIN_EXPIRE,
+        httpOnly:true
+    }
+    res.cookie('jwt',token,options)
+    console.log("sign up 5")
     res.status(statusCode).json({
       status: "success",
       token,
@@ -29,8 +35,9 @@ createSendResponse=(user,statusCode,res)=>{
 
 exports.signUp = async (req, res, next) => {
   try {
+    console.log("sign up")
     const newuser = await userModel.create(req.body);
-
+    console.log("sign up 1")
     createSendResponse(newuser,200,res)
   } catch (err) {
     res.status(404).json({
