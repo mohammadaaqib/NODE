@@ -3,6 +3,8 @@ const express = require("express");
 const morgan = require("morgan");
 const rateLimit=require("express-rate-limit");
 const helmet= require("helmet");
+const sanitize= require("express-mongo-sanitize");
+const xss =require("xss-clean")
 const movieRouter = require("./Routes/movieRoutes");
 const authRouter = require("./Routes/authRouter")
 const userRouter = require("./Routes/userRouter")
@@ -22,8 +24,9 @@ const logger = function (req, res, next) {
   next();
 };
 
-
 app.use(express.json());
+app.use(sanitize());
+app.use(xss());
 
 
 if (process.env.NODE_ENV == "development") {
