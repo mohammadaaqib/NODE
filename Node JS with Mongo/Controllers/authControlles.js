@@ -12,7 +12,7 @@ const createToken = (id) => {
   });
 };
 
-const createSendResponse=(user,statusCode,res)=>{
+createSendResponse=(user,statusCode,res)=>{
     console.log("test")
     const token = createToken(user._id);
     res.status(statusCode).json({
@@ -185,21 +185,4 @@ createSendResponse(user,201,res)
 
 };
 
-exports.updatePassword=async (req,res,next)=>{
-//get password from Db
-    const user=await userModel.findById(req.user._id).select('+password');
 
-//compare password 
-console.log(await user.comparePassword(req.body.currentPassword,user.password))
-    if( !(await user.comparePassword(req.body.currentPassword,user.password))){
-
-        return next(new CustomError("The Current password you provided is wrong",401))
-    }
-// set new password
-    user.password=req.body.password;
-    user.confirmpassword=req.body.confirmpassword;
-    await user.save();
-//loign user and send jwt 
-    createSendResponse(user,201,res)
-
-}

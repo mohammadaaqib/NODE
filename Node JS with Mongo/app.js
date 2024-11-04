@@ -3,6 +3,7 @@ const express = require("express");
 const morgan = require("morgan");
 const movieRouter = require("./Routes/movieRoutes");
 const authRouter = require("./Routes/authRouter")
+const userRouter = require("./Routes/userRouter")
 const customError = require("./Utils/CustomError");
 const globalErrorHandler = require("./Controllers/errorController");
 
@@ -37,7 +38,8 @@ app.use((req, res, next) => {
 // app.delete("/api/v1/movies/:id", deleteMovie);
 // Middle ware to use route
 app.use("/api/v1/movies", movieRouter);
-app.use("/api/v1/users", authRouter);
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/user", userRouter);
 
 //For error urls  middleware
 app.all("*", (req, res, next) => {
