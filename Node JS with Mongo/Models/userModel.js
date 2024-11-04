@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: [true, "Please enter a password."],
-    minlength: 8,
+    minlength: 8
   },
   confirmpassword: {
     type: String,
@@ -53,6 +53,13 @@ userSchema.pre("save", async function (next) {
   this.confirmpassword = undefined;
   next();
 });
+
+userSchema.pre(/^find/, async function (next) {
+ this.find({active:{$ne:false}})
+  next();
+});
+
+
 userSchema.methods.comparePassword = async (password, DBPassword) => {
   return await bcrypt.compare(password, DBPassword);
 };
@@ -75,7 +82,6 @@ userSchema.methods.createResetPasswordToken = function () {
     .update(resetToken)
     .digest("hex");
   this.passwordResetTokenExpires = Date.now() + 10 * 60 * 1000;
-
   console.log(resetToken, this.passwordResetToken);
 
   return resetToken;

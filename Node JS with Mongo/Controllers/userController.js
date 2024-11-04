@@ -33,13 +33,23 @@ filterReqObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-exports.updatePassword = async (req, res, next) => {
+exports.getAllUser = async(req, res, next) => {
+  const users = await userModel.find();
+  res.status(200).json({
+    status: "success",
+    totalUsers:users.length,
+    data: {
+      user: users,
+    },
+  });
+};
 
+exports.updatePassword = async (req, res, next) => {
   //get password from Db
   const user = await userModel.findById(req.user._id).select("+password");
 
   //compare password
- 
+
   if (!(await user.comparePassword(req.body.currentPassword, user.password))) {
     return next(
       new CustomError("The Current password you provided is wrong", 401)
@@ -73,11 +83,10 @@ exports.updateUserDetail = async (req, res, next) => {
   });
 };
 
-exports.deleteUser = async (req,res,next) => {
-await userModel.findByIdAndUpdate(req.user.id,{active:false});
-res.status(200).json({
+exports.deleteUser = async (req, res, next) => {
+  await userModel.findByIdAndUpdate(req.user.id, { active: false });
+  res.status(200).json({
     status: "success",
-    data: null
+    data: null,
   });
-
 };

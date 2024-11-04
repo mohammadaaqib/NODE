@@ -8,8 +8,9 @@ const router = express.Router();
 
 
 
-console.log("in user route")
 
+
+router.route("/getAllUsers/").get(userController.getAllUser);
 
 router.route("/updatePassword/").patch(authController.protect,userController.updatePassword);
 

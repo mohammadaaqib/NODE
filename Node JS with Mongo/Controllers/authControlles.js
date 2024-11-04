@@ -130,7 +130,9 @@ exports.forgetPassword = async (req, res, next) => {
   }
   //2 generate reset passeord token
   const resetToken = user.createResetPasswordToken();
+  console.log("reset")
   await user.save({ validateBeforeSave: false });
+  console.log(await user.save({ validateBeforeSave: false }))
 
   //3 semd email
   const resetUrl = `${req.protocol}://${req.get(
