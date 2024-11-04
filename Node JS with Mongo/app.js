@@ -1,7 +1,8 @@
 //Import express
 const express = require("express");
 const morgan = require("morgan");
-const rateLimit=require("express-rate-limit")
+const rateLimit=require("express-rate-limit");
+const helmet= require("helmet");
 const movieRouter = require("./Routes/movieRoutes");
 const authRouter = require("./Routes/authRouter")
 const userRouter = require("./Routes/userRouter")
@@ -9,6 +10,8 @@ const customError = require("./Utils/CustomError");
 const globalErrorHandler = require("./Controllers/errorController");
 
 let app = express();
+app.use(helmet());
+
 let Limiter=rateLimit({
   max:1000,
   windowMs:60*60*1000,
@@ -19,7 +22,10 @@ const logger = function (req, res, next) {
   next();
 };
 
+
 app.use(express.json());
+
+
 if (process.env.NODE_ENV == "development") {
   app.use(morgan("dev"));
 }
