@@ -3,6 +3,8 @@ const CustomError = require("../Utils/CustomError");
 const userModel = require("./../Models/userModel");
 const jwt = require("jsonwebtoken");
 const util = require("util");
+const sendEmail = require("./../Utils/email");
+const crypto = require("crypto");
 
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.SECRET_STR, {
@@ -10,18 +12,24 @@ const createToken = (id) => {
   });
 };
 
+const createSendResponse=(user,statusCode,res)=>{
+    console.log("test")
+    const token = createToken(user._id);
+    res.status(statusCode).json({
+      status: "success",
+      token,
+      data: {
+        user
+      },
+    });
+
+} 
+
 exports.signUp = async (req, res, next) => {
   try {
     const newuser = await userModel.create(req.body);
 
-    const token = createToken(newuser._id);
-    res.status(201).json({
-      status: "success",
-      token,
-      data: {
-        user: newuser,
-      },
-    });
+    createSendResponse(newuser,200,res)
   } catch (err) {
     res.status(404).json({
       status: "Fail",
@@ -48,12 +56,9 @@ exports.login = async (req, res, next) => {
       const error = new CustomError("Email or user is not correct", 400);
       return next(error);
     }
-    const token = createToken(user._id);
 
-    res.status(201).json({
-      status: "success",
-      data: { token },
-    });
+
+    createSendResponse(user,201,res)
   } catch (err) {
     const error = new CustomError(err.message, 404);
   }
@@ -86,15 +91,13 @@ exports.protect = async (req, res, next) => {
       );
     }
 
-
-
     //4 if user change password after token issued
-   if( user.isPasswordChanged(decordedToken.iat)){
-    return next( new CustomError("the password is changed recently", 401))
-   }
+    if (user.isPasswordChanged(decordedToken.iat)) {
+      return next(new CustomError("the password is changed recently", 401));
+    }
 
     //5 allow user to access route
-req.user=user;
+    req.user = user;
     next();
   } catch (err) {
     console.log("here");
@@ -103,16 +106,100 @@ req.user=user;
   }
 };
 
-exports.restrict=(role)=>{
-    return (req,res,next)=>{
-        console.log(req.user.role)
-        console.log(role)
-
-        if(role!==req.user.role){
-            next( new CustomError("You do not have permission to performe this action", 403))
-        }
-        next();
-
+exports.restrict = (role) => {
+  return (req, res, next) => {
+    if (role !== req.user.role) {
+      next(
+        new CustomError(
+          "You do not have permission to performe this action",
+          403
+        )
+      );
     }
+    next();
+  };
+};
+
+exports.forgetPassword = async (req, res, next) => {
+  //1 get user
+
+  const user = await userModel.findOne({ email: req.body.email });
+  if (!user) {
+    next(new CustomError("Please enter email", 401));
+  }
+  //2 generate reset passeord token
+  const resetToken = user.createResetPasswordToken();
+  await user.save({ validateBeforeSave: false });
+
+  //3 semd email
+  const resetUrl = `${req.protocol}://${req.get(
+    "host"
+  )}/api/v1/users/resetPassword/${resetToken}`;
+  const message = `We have recived a password reset request.  Please use the below link to reset your password \n\n${resetUrl} \n\n This reset password link will be valid only for 10 mint`;
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Password change request",
+      message: message,
+    });
+    res.status(200).json({
+      status: "Success",
+      message: "Password reset link send to the user email",
+    });
+  } catch (err) {
+    console.log(err)
+    user.passwordResetToken = undefined;
+    user.passwordResetTokenExpires = undefined;
+    user.save({ validateBeforeSave: false });
+    next(
+      new CustomError(
+        "There was an error sending password reset email. Please try again later",
+        500
+      )
+    );
+  }
+};
+
+exports.resetPassword = async (req, res, next) => {
+    // check token is correct and not expire
+    const token =crypto.createHash('sha256').update(req.params.token).digest('hex')
+console.log(token)
+const user = await userModel.findOne({passwordResetToken:token,passwordResetTokenExpires:{$gt:Date.now()}})
+
+if(!user){
+  return   next(new CustomError('Token is invalid or has expire',400))
+}
+// save new password in db 
+user.password=req.body.password;
+user.confirmpassword=req.body.confirmpassword;
+user.passwordResetToken=undefined;
+user.passwordResetTokenExpires=undefined;
+user.passwordChnagedAt=Date.now();
+
+user.save();
+// login in user 
+
+createSendResponse(user,201,res)
+
+
+
+};
+
+exports.updatePassword=async (req,res,next)=>{
+//get password from Db
+    const user=await userModel.findById(req.user._id).select('+password');
+
+//compare password 
+console.log(await user.comparePassword(req.body.currentPassword,user.password))
+    if( !(await user.comparePassword(req.body.currentPassword,user.password))){
+
+        return next(new CustomError("The Current password you provided is wrong",401))
+    }
+// set new password
+    user.password=req.body.password;
+    user.confirmpassword=req.body.confirmpassword;
+    await user.save();
+//loign user and send jwt 
+    createSendResponse(user,201,res)
 
 }
